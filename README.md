@@ -82,6 +82,7 @@ This project provides a Python script to scrape aptitude questions, their option
 3. **Check the Output**:
    The scraped data will be saved to `aptitude_questions_with_answers.csv`. If the file already exists, the data will be appended to it.
 
+4. To close the code, press `Ctrl + C`.
 ---
 
 ## Dependencies
