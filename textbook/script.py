@@ -19,34 +19,53 @@ def run_url_scraper(url):
         options_list = []
         answers = []
         topics = []
-        # print(soup)
+
         # Extract the topic (e.g., Problems on Trains)
         whole_topic = soup.find('div', class_='all-questions')
-        # print(whole_topic)
-        topic_title = whole_topic.find('h2')
-        # print(topic_title.text)
+        topic_title = whole_topic.find('h2').text.strip() if whole_topic.find('h2') else "Unknown"
 
         # Find all question blocks
         questions = whole_topic.find_all('p', class_='questionBody individual_question')
-        for question in questions:
-            print(question.text)
-            print('---------------------------------')
-
         options_list = whole_topic.find_all('ol', class_='options-list')
-
-        for options in options_list:
-            for singular_option in options.find_all('li'):
-                print(singular_option.text)
-            print('---------------------------------')
-
         answer_cards = whole_topic.find_all('div', class_='card answer-card')
-        for answer_card in answer_cards:
-            answer = answer_card.find('div')
-            if answer:
-                print(answer.text.strip())
-            print('---------------------------------')
 
-        
+        data = []
+
+        for i in range(len(questions)):
+            question_text = questions[i].text.strip()
+            options = [opt.text.strip() for opt in options_list[i].find_all('li')]
+            answer = answer_cards[i].find('div').text.strip() if answer_cards[i].find('div') else "Unknown"
+
+            if len(options) >= 4:
+                data.append({
+                    'Topic': topic_title,
+                    'Question': question_text,
+                    'Option 1': options[0],
+                    'Option 2': options[1],
+                    'Option 3': options[2],
+                    'Option 4': options[3],
+                    'Answer': answer
+                })
+
+        if data:
+            df = pd.DataFrame(data)
+
+            # Define the file path for the CSV
+            csv_file = 'aptitude_questions_with_answers.csv'
+
+            # Check if the file already exists
+            if os.path.isfile(csv_file):
+                # Append data to the existing CSV without writing the header
+                df.to_csv(csv_file, mode='a', header=False, index=False)
+            else:
+                # Write a new CSV with the header
+                df.to_csv(csv_file, mode='w', header=True, index=False)
+
+            print("Data has been appended to aptitude_questions_with_answers.csv")
+        else:
+            print("No valid data to append.")
+    else:
+        print(f"Failed to retrieve page, status code: {response.status_code}")
 
 if __name__ == "__main__":
     # Take the URL input from the user
